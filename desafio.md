@@ -8,41 +8,18 @@ O aplicativo deve mostrar uma lista de marcas de carro, permitindo acessar uma m
 
 ---
 
-## Organização Sugerida: Clean Architecture
+## Organização do Projeto
 
-Para garantir escalabilidade, manutenibilidade e clareza, recomenda-se organizar o projeto seguindo os princípios da Clean Architecture, adaptados para React Native/Expo:
+> **Nota:** Este projeto utiliza a **estrutura padrão do Expo Router**, que organiza as rotas e telas por arquivos na pasta `app/`. As responsabilidades são separadas conforme o padrão do Expo:
+>
+> - `app/`: telas, navegação e contexto global
+> - `components/`: componentes reutilizáveis
+> - `hooks/`: hooks customizados
+> - `services/` ou `api/`: acesso a APIs e storage
+> - `constants/`: temas, cores e constantes globais
+> - `shared/`: utilitários e tipos globais
 
-```
-src/
-├── domain/           # Regras de negócio, entidades e interfaces
-│   ├── entities/     # Entidades principais (ex: User, Brand, Model)
-│   ├── repositories/ # Interfaces dos repositórios (contratos)
-│   └── usecases/     # Casos de uso (ex: SignIn, ListBrands)
-├── data/             # Implementações dos repositórios, serviços de API
-│   ├── api/          # Serviços de acesso às APIs externas
-│   └── storage/      # Serviços de persistência local (AsyncStorage)
-├── presentation/     # Camada de UI (componentes, telas, navegação)
-│   ├── components/   # Componentes reutilizáveis
-│   ├── screens/      # Telas (SignIn, Home, Model)
-│   └── navigation/   # Configuração do React Navigation
-├── app/              # Inicialização do app, providers, contexto global
-└── shared/           # Tipos, utilitários, temas, estilos globais
-```
-
-### Resumo das Camadas
-
-- **Domain:** Define entidades, interfaces e regras de negócio (ex: autenticação, listagem de marcas/modelos).
-- **Data:** Implementa acesso a dados (APIs, AsyncStorage), seguindo contratos definidos em domain.
-- **Presentation:** Contém a interface do usuário, navegação e lógica de apresentação.
-- **App:** Responsável por inicializar providers (Context API, Theme, etc).
-- **Shared:** Utilitários, tipos globais, temas e estilos.
-
-### Exemplo de Fluxo
-
-- O usuário faz login (presentation/screens/SignIn), que chama um caso de uso (domain/usecases/SignIn).
-- O caso de uso utiliza um repositório (domain/repositories/AuthRepository).
-- O repositório é implementado na camada data (data/api/AuthRepositoryImpl), que faz a chamada à API.
-- O resultado é retornado para a tela, que atualiza o contexto global (app/).
+A lógica de domínio, dados e apresentação está organizada de forma clara e escalável, aproveitando o roteamento automático e a simplicidade do Expo Router.
 
 ---
 
