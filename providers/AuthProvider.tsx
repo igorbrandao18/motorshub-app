@@ -26,8 +26,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
-    await AsyncStorage.removeItem('user');
-    setUser(null);
+    console.log('AuthProvider: Initiating signOut.');
+    setLoading(true);
+    try {
+      await AsyncStorage.removeItem('user');
+      console.log('AuthProvider: User data removed from AsyncStorage.');
+      setUser(null);
+      console.log('AuthProvider: User state set to null.');
+    } catch (e) {
+      console.error('AuthProvider: Error during signOut:', e);
+    } finally {
+      setLoading(false);
+      console.log('AuthProvider: SignOut process completed. Loading state set to false.');
+    }
   };
 
   return (

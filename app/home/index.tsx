@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Dimensions, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '../../providers/AuthProvider';
 import { getBrands } from '../services/brands';
 import { BrandCard } from './BrandCard';
 import { styles } from './styles';
@@ -25,6 +26,7 @@ function getBrandLogo(brandName: string) {
 
 export default function Home() {
   const router = useRouter();
+  const { signOut } = useAuth();
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [brands, setBrands] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +40,9 @@ export default function Home() {
       .finally(() => setLoading(false));
   }, []);
 
-  function handleLogout() {
+  async function handleLogout() {
+    console.log('Home: handleLogout called, initiating signOut.');
+    await signOut();
     router.replace('/signin');
   }
 
@@ -53,13 +57,13 @@ export default function Home() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <Animated.View entering={FadeInDown.duration(700)} style={styles.header}>
-        <TouchableOpacity style={{ marginRight: 16 }} activeOpacity={0.7}>
-          <Ionicons name="menu" size={32} color={THEME_COLOR} />
-        </TouchableOpacity>
         <View style={styles.userBox}>
           <Ionicons name="person-circle" size={44} color={THEME_COLOR} />
           <Text style={styles.userName}>{MOCK_USER}</Text>
         </View>
+        <TouchableOpacity onPress={handleLogout} activeOpacity={0.7}>
+          <Ionicons name="log-out-outline" size={28} color={THEME_COLOR} />
+        </TouchableOpacity>
       </Animated.View>
       {loading ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
