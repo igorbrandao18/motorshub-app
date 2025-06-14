@@ -41,7 +41,6 @@ export default function Home() {
   }, []);
 
   async function handleLogout() {
-    console.log('Home: handleLogout called, initiating signOut.');
     await signOut();
     router.replace('/signin');
   }
@@ -94,4 +93,4 @@ export default function Home() {
       )}
     </SafeAreaView>
   );
-} 
+}

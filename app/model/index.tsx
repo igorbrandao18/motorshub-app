@@ -68,7 +68,7 @@ export default function Model() {
                 setSelected(item.codigo);
                 setTimeout(() => {
                   setSelected(null);
-                  router.push({ pathname: '/details', params: { code: item.codigo, name: item.nome } });
+                  router.push({ pathname: '/model', params: { code: item.codigo, name: item.nome } });
                 }, 300);
               }}
               pressed={selected === item.codigo}

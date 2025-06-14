@@ -32,7 +32,7 @@ export default function SignIn() {
     try {
       const userData = await signIn(user, password);
       await signInContext(userData);
-      // router.replace('/home'); // redireciona via useEffect
+
     } catch (err: any) {
       setError(err.message || 'Login failed');
     } finally {

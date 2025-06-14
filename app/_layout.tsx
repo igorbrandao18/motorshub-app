@@ -12,24 +12,18 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    console.log('AuthGuard: user', user, 'authLoading', authLoading, 'segments', segments);
     if (authLoading) {
-      console.log('AuthGuard: Auth is loading, returning.');
-      return; // Espera o estado de autenticação carregar
+      return;
     }
 
     const isSignInScreen = segments[segments.length - 1] === 'signin';
 
     if (user) {
-      // Se o usuário está logado e tenta acessar a tela de login
       if (isSignInScreen) {
-        console.log('AuthGuard: User logged in, on signin screen. Redirecting to /home');
         router.replace('/home');
       }
-    } else { // Se o usuário NÃO está logado
-      // Se o usuário tenta acessar qualquer tela que NÃO seja a de login
+    } else {
       if (!isSignInScreen) {
-        console.log('AuthGuard: User not logged in, not on signin screen. Redirecting to /signin');
         router.replace('/signin');
       }
     }
