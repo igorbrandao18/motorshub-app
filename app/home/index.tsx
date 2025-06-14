@@ -1,20 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dimensions, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { getBrands } from '../services/brands';
 import { BrandCard } from './BrandCard';
 import { styles } from './styles';
-import { Brand } from './types';
 
 const MOCK_USER = 'Usuário Teste';
-const MOCK_BRANDS: Brand[] = [
-  { code: '1', name: 'Fiat' },
-  { code: '2', name: 'Ford' },
-  { code: '3', name: 'Chevrolet' },
-  { code: '4', name: 'Volkswagen' },
-];
 const THEME_COLOR = '#0a7ea4';
 const { width } = Dimensions.get('window');
 
@@ -32,16 +26,27 @@ function getBrandLogo(brandName: string) {
 export default function Home() {
   const router = useRouter();
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
+  const [brands, setBrands] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    getBrands()
+      .then(data => setBrands(data))
+      .catch(err => setError(err.message || 'Erro ao buscar marcas'))
+      .finally(() => setLoading(false));
+  }, []);
 
   function handleLogout() {
     router.replace('/signin');
   }
 
-  function handleBrand(brand: Brand) {
-    setSelectedCard(brand.code);
+  function handleBrand(brand: any) {
+    setSelectedCard(brand.codigo);
     setTimeout(() => {
       setSelectedCard(null);
-      router.push({ pathname: '/model', params: { code: brand.code, name: brand.name } });
+      router.push({ pathname: '/model', params: { code: brand.codigo, name: brand.nome } });
     }, 300);
   }
 
@@ -56,23 +61,33 @@ export default function Home() {
           <Text style={styles.userName}>{MOCK_USER}</Text>
         </View>
       </Animated.View>
-      <FlatList
-        data={MOCK_BRANDS}
-        keyExtractor={item => item.code}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 18, paddingBottom: 32 }}
-        renderItem={({ item, index }) => (
-          <Animated.View entering={FadeInUp.delay(200 + index * 80).duration(700)}>
-            <BrandCard
-              brand={item}
-              logo={getBrandLogo(item.name)}
-              onPress={() => handleBrand(item)}
-              themeColor={THEME_COLOR}
-              pressed={selectedCard === item.code}
-            />
-          </Animated.View>
-        )}
-        showsVerticalScrollIndicator={false}
-      />
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ color: '#888', fontSize: 18 }}>Carregando marcas...</Text>
+        </View>
+      ) : error ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ color: '#d32f2f', fontSize: 16 }}>{error}</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={brands}
+          keyExtractor={item => item.codigo}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 18, paddingBottom: 32 }}
+          renderItem={({ item, index }) => (
+            <Animated.View entering={FadeInUp.delay(200 + index * 80).duration(700)}>
+              <BrandCard
+                brand={{ code: item.codigo, name: item.nome }}
+                logo={getBrandLogo(item.nome)}
+                onPress={() => handleBrand(item)}
+                themeColor={THEME_COLOR}
+                pressed={selectedCard === item.codigo}
+              />
+            </Animated.View>
+          )}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </SafeAreaView>
   );
 } 

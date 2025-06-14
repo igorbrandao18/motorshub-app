@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Dimensions, Image, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { useAuth } from '../../providers/AuthProvider';
+import { signIn } from '../services/auth';
 
 const MOCK_USER = 'teste';
 const MOCK_PASS = '123';
@@ -18,18 +20,24 @@ export default function SignIn() {
   const { control, handleSubmit, formState: { errors } } = useForm({
     defaultValues: { user: '', password: '' },
   });
+  const { user, signIn: signInContext, loading: authLoading } = useAuth();
 
-  function onSubmit({ user, password }: { user: string; password: string }) {
+  React.useEffect(() => {
+    if (user) router.replace('/home');
+  }, [user]);
+
+  async function onSubmit({ user, password }: { user: string; password: string }) {
     setError(null);
     setLoading(true);
-    setTimeout(() => {
+    try {
+      const userData = await signIn(user, password);
+      await signInContext(userData);
+      // router.replace('/home'); // redireciona via useEffect
+    } catch (err: any) {
+      setError(err.message || 'Login failed');
+    } finally {
       setLoading(false);
-      if (user === MOCK_USER && password === MOCK_PASS) {
-        router.replace('/home');
-      } else {
-        setError('Invalid username or password');
-      }
-    }, 900);
+    }
   }
 
   return (
@@ -117,9 +125,6 @@ export default function SignIn() {
             </Animated.Text>
           </TouchableOpacity>
         </View>
-        <Animated.Text entering={FadeInUp.delay(800).duration(700)} style={styles.demoInfo}>
-          Test user: <Text style={styles.bold}>{MOCK_USER}</Text> | Password: <Text style={styles.bold}>{MOCK_PASS}</Text>
-        </Animated.Text>
       </View>
     </KeyboardAvoidingView>
   );
@@ -209,15 +214,5 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontSize: 14,
     textAlign: 'center',
-  },
-  demoInfo: {
-    marginTop: 24,
-    color: '#888',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  bold: {
-    fontWeight: 'bold',
-    color: THEME_COLOR,
   },
 }); 

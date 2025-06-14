@@ -1,31 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
 import { styles as homeStyles } from '../home/styles';
-
-const MOCK_MODELS = {
-  '1': [
-    { code: '1a', name: 'Uno' },
-    { code: '1b', name: 'Palio' },
-    { code: '1c', name: 'Toro' },
-  ],
-  '2': [
-    { code: '2a', name: 'Ka' },
-    { code: '2b', name: 'Fiesta' },
-    { code: '2c', name: 'EcoSport' },
-  ],
-  '3': [
-    { code: '3a', name: 'Onix' },
-    { code: '3b', name: 'Prisma' },
-    { code: '3c', name: 'Tracker' },
-  ],
-  '4': [
-    { code: '4a', name: 'Gol' },
-    { code: '4b', name: 'Polo' },
-    { code: '4c', name: 'Virtus' },
-  ],
-};
+import { getModels } from '../services/brands';
 
 const THEME_COLOR = '#0a7ea4';
 
@@ -48,8 +26,18 @@ export default function Model() {
   const params = useLocalSearchParams();
   const brandCode = params.code as string;
   const brandName = params.name as string;
-  const models = MOCK_MODELS[brandCode] || [];
+  const [models, setModels] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    getModels(brandCode)
+      .then(data => setModels(data.modelos))
+      .catch(err => setError(err.message || 'Erro ao buscar modelos'))
+      .finally(() => setLoading(false));
+  }, [brandCode]);
 
   return (
     <SafeAreaView style={homeStyles.safeArea}>
@@ -60,19 +48,35 @@ export default function Model() {
         <Text style={[homeStyles.userName, { flex: 1, textAlign: 'center' }]}>{brandName}</Text>
         <View style={{ width: 44 }} />
       </View>
-      <FlatList
-        data={models}
-        keyExtractor={item => item.code}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 18, paddingBottom: 32 }}
-        renderItem={({ item, index }) => (
-          <ModelCard
-            model={item}
-            onPress={() => setSelected(item.code)}
-            pressed={selected === item.code}
-          />
-        )}
-        showsVerticalScrollIndicator={false}
-      />
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ color: '#888', fontSize: 18 }}>Carregando modelos...</Text>
+        </View>
+      ) : error ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ color: '#d32f2f', fontSize: 16 }}>{error}</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={models}
+          keyExtractor={item => item.codigo}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 18, paddingBottom: 32 }}
+          renderItem={({ item, index }) => (
+            <ModelCard
+              model={{ code: item.codigo, name: item.nome }}
+              onPress={() => {
+                setSelected(item.codigo);
+                setTimeout(() => {
+                  setSelected(null);
+                  router.push({ pathname: '/details', params: { code: item.codigo, name: item.nome } });
+                }, 300);
+              }}
+              pressed={selected === item.codigo}
+            />
+          )}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </SafeAreaView>
   );
 } 
