@@ -61,7 +61,7 @@ export default function Home() {
           <Ionicons name="person-circle" size={44} color={THEME_COLOR} />
           <Text style={styles.userName}>{MOCK_USER}</Text>
         </View>
-        <TouchableOpacity onPress={handleLogout} activeOpacity={0.7}>
+        <TouchableOpacity onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={28} color={THEME_COLOR} />
         </TouchableOpacity>
       </Animated.View>
